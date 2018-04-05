@@ -257,7 +257,7 @@
 (eval-safe
  (require 'package)
  (package-initialize)
- (package-refresh-contents)
+ ;(package-refresh-contents)
  (unless (fboundp 'intero-mode)
    ;;(package-refresh-contents)
    ;;(package-install 'intero)
