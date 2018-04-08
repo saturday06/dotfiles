@@ -996,6 +996,14 @@ brew-cask-upgrade() (
   done; 
 )
 
+shrc_update_xenv() (
+  for dir in ~/.rbenv ~/.rbenv/plugins/ruby-build ~/.nodenv ~/.nodenv/plugins/node-build; do
+    cd $dir
+    git fetch --prune
+    git reset --hard origin/master
+  done
+)
+
 idea() (
   shrc_nohup ~/.local/idea-IC/bin/idea.sh
 )
