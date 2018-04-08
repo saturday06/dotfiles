@@ -998,9 +998,11 @@ brew-cask-upgrade() (
 
 shrc_update_xenv() (
   for dir in ~/.rbenv ~/.rbenv/plugins/ruby-build ~/.nodenv ~/.nodenv/plugins/node-build; do
-    cd $dir
-    git fetch --prune
-    git reset --hard origin/master
+    if [ -d $dir ]; then
+      cd $dir
+      git fetch --prune
+      git reset --hard origin/master
+    fi
   done
 )
 
