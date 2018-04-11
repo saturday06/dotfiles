@@ -280,6 +280,17 @@
  (setq company-idle-delay 0.2)
  (setq company-minimum-prefix-length 0)
  (setq company-selection-wrap-around t)
+ (setq company-auto-expand t)
+ ;(setq company-transformers '(company-sort-by-backend-importance))
+ (setq completion-ignore-case t)
+ (setq company-dabbrev-downcase nil)
+ (global-set-key (kbd "C-M-i") 'company-complete)
+ (define-key company-active-map (kbd "C-n") 'company-select-next)
+ (define-key company-active-map (kbd "C-p") 'company-select-previous)
+ (define-key company-active-map [tab] 'company-complete-selection)
+ (define-key company-active-map (kbd "C-h") nil)
+ (define-key company-active-map (kbd "C-S-h") 'company-show-doc-buffer)
+ 
  (require 'company-quickhelp)
  )
 
