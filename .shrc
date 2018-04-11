@@ -414,14 +414,20 @@ shrc_main() {
     fi
   done
 
-  if [ -d "$HOME/.local/go" ]; then
-    if [ -z "$GOROOT" ]; then
+  if [ -z "$GOROOT" ]; then
+    if [ -d "$HOME/.local/go" ]; then
       export GOROOT=$HOME/.local/go
     fi
   fi
 
   if [ -z "$GOPATH" ]; then
-    export GOPATH=$HOME/go
+    if [ -d "$HOME/go" ]; then
+      export GOPATH=$HOME/go
+    elif [ -d "$HOME/gocode" ]; then
+      export GOPATH=$HOME/gocode
+    elif [ -d "$HOME/gopath" ]; then
+      export GOPATH=$HOME/gopath
+    fi
   fi
 
   shrc_pathmunge $GOROOT/bin
