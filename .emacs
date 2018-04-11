@@ -277,6 +277,9 @@
  )
 (eval-safe
  (require 'company)
+ (setq company-idle-delay 0.2)
+ (setq company-minimum-prefix-length 0)
+ (setq company-selection-wrap-around t)
  (require 'company-quickhelp)
  )
 
