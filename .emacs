@@ -257,6 +257,10 @@
 (eval-safe
  (require 'package)
  (package-initialize)
+; (let ((stamp-path "~/.emacs.d/package-refresh-contents-stamp")
+;       (mtime (nth 5 (file-attributes stamp-path))))
+;   (if (= mtime nil) (progn (append-file 0 0 stamp-path)))
+;   )
  ;(package-refresh-contents)
  (unless (fboundp 'intero-mode)
    ;;(package-refresh-contents)
