@@ -257,16 +257,25 @@
 (eval-safe
  (require 'package)
  (package-initialize)
-; (let ((stamp-path "~/.emacs.d/package-refresh-contents-stamp")
-;       (mtime (nth 5 (file-attributes stamp-path))))
-;   (if (= mtime nil) (progn (append-file 0 0 stamp-path)))
-;   )
- ;(package-refresh-contents)
+ (let ((stamp-path "~/.emacs.d/package-refresh-contents-stamp"))
+   (let ((mtime (nth 5 (file-attributes stamp-path))))
+     (if (or (not mtime)
+             (< (+ (time-to-seconds mtime) (* 7 24 60 60))
+                (time-to-seconds (current-time)))
+             )
+         (progn
+           (with-temp-buffer
+             (insert "timestamp")
+             (write-file stamp-path))
+           (package-refresh-contents)
+           ))))
  (unless (fboundp 'intero-mode)
-   ;;(package-refresh-contents)
-   ;;(package-install 'intero)
+   (package-install 'intero)
+   (eval-safe
+    (require 'intero)
+    (add-hook 'haskell-mode-hook 'intero-mode)
+    )
    )
- (unless (featurep 'dos-w32) (add-hook 'haskell-mode-hook 'intero-mode))
  )
 
 ; ---
