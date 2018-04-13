@@ -1012,6 +1012,33 @@ shrc_update_xenv() (
   done
 )
 
+shrc_dep_go() (
+  go get -u github.com/nsf/gocode
+  go get -u github.com/rogpeppe/godef
+  go get -u github.com/nsf/gocode
+  go get -u github.com/golang/lint/golint
+  go get -u github.com/kisielk/errcheck
+)
+
+shrc_dep_rust() (
+  rustup component add rustfmt-preview rls-preview rust-analysis rust-src
+  rustup component add rustfmt-preview rls-preview rust-analysis rust-src --toolchain=stable
+  rustup run stable cargo install racer
+)
+
+shrc_dep_emacs() (
+  emacs --batch --eval "(progn (load \"~/.emacs\")(require 'package)(package-initialize)(package-refresh-contents))"
+  for package in \
+      company-go \
+      company-rust \
+      company-quickhelp \
+      racer \
+      intero \
+    ; do
+    emacs --batch --eval "(progn (load \"~/.emacs\")(require 'package)(package-initialize)(package-install '$package))"
+  done
+)
+
 idea() (
   shrc_nohup ~/.local/idea-IC/bin/idea.sh
 )

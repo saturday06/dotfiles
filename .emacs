@@ -43,7 +43,7 @@
       buffer)))
 
 (mapcar
- '(lambda (pair)
+ #'(lambda (pair)
     (unless (boundp (car pair))
       (set (car pair) (car (cdr pair)))))
  '((window-system nil)
@@ -87,12 +87,12 @@
 
 ; make missing required dir
 (mapcar
- '(lambda (dir)
-    (let ((abs-dir (expand-file-name (concat "~/.emacs.d/" dir))))
-      (progn
-        (unless (file-directory-p abs-dir)
-          (make-directory abs-dir t))
-        (push abs-dir load-path))))
+ #'(lambda (dir)
+     (let ((abs-dir (expand-file-name (concat "~/.emacs.d/" dir))))
+       (progn
+         (unless (file-directory-p abs-dir)
+           (make-directory abs-dir t))
+         (push abs-dir load-path))))
  '(
    ".eshell"
    "backup"
@@ -109,12 +109,12 @@
 
 ; setup PATH
 (mapcar
- '(lambda (path)
-    (let ((full-path (expand-file-name path))
-          (path-separator (if (featurep 'dos-w32) ";" ":")))
-      (push full-path exec-path)
-      (eval-safe
-       (setenv "PATH" (concat (getenv "PATH") path-separator full-path)))))
+ #'(lambda (path)
+     (let ((full-path (expand-file-name path))
+           (path-separator (if (featurep 'dos-w32) ";" ":")))
+       (push full-path exec-path)
+       (eval-safe
+        (setenv "PATH" (concat (getenv "PATH") path-separator full-path)))))
  '(
    "~/.emacs.d/usr/bin"
    "~/.local/bin"
@@ -123,8 +123,8 @@
 
 ; setup package-archives
 (mapcar
- '(lambda (package-archive)
-    (push package-archive package-archives))
+ #'(lambda (package-archive)
+     (push package-archive package-archives))
  '(
    ("gnu" . "https://elpa.gnu.org/packages/")
    ("melpa" . "http://melpa.org/packages/")
@@ -142,7 +142,7 @@
  (while (string-match "[^-a-zA-Z0-9._@]" filename)
    (setq filename (replace-match "." nil nil filename)))
  (setq custom-file (concat "~/.emacs.d/lisp/customize/" filename ".el"))
- (load custom-file)
+ (if (file-exists-p custom-file) (load custom-file))
  )
 
 ; ----------------------------------------------------------------------------
@@ -284,10 +284,6 @@
  (run-with-idle-timer 0.5 t 'auto-save-buffers)
  )
 
-(eval-safe
- (require 'rust-mode)
- (require 'racer-mode)
- )
 (eval-safe
  (require 'company)
  (setq company-idle-delay 0.2)
