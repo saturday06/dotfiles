@@ -1035,7 +1035,6 @@ shrc_dep_emacs() (
   emacs --batch --eval "(progn (load \"~/.emacs\")(require 'package)(package-initialize)(package-refresh-contents))"
   for package in \
       company-go \
-      company-rust \
       company-quickhelp \
       racer \
       intero \
