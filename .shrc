@@ -1005,6 +1005,7 @@ brew-cask-upgrade() (
 )
 
 shrc_update_xenv() (
+  set -eux
   for dir in ~/.rbenv ~/.rbenv/plugins/ruby-build ~/.nodenv ~/.nodenv/plugins/node-build; do
     if [ -d $dir ]; then
       cd $dir
