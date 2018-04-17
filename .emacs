@@ -308,12 +308,15 @@
    'go-mode-hook
    (lambda ()
      (set (make-local-variable 'company-backends) '(company-go))
+     (eval-safe (eldoc-mode))
+     (eval-safe (flycheck-mode))
      (company-mode))))
-
  (require 'company-quickhelp)
  )
 
 (eval-safe
+ (with-eval-after-load 'rust-mode
+   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
  (require 'rust-mode)
  (defun rust-mode-hooks ()
    (if (fboundp 'company-indent-or-complete-common)
@@ -323,9 +326,7 @@
          ))
    (eval-safe (racer-mode))
    (eval-safe (eldoc-mode))
-   (eval-safe
-    (flycheck-mode)
-    (flycheck-rust-setup))
+   (eval-safe (flycheck-mode))
    (eval-safe
     (company-mode)
     (company-quickhelp-mode))
