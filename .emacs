@@ -287,7 +287,9 @@
 (eval-safe
  (require 'company)
  (setq company-idle-delay 0.2)
+ (setq company-echo-delay 0)
  (setq company-minimum-prefix-length 0)
+ (setq company-tooltip-limit 20)
  (setq company-selection-wrap-around t)
  (setq company-auto-expand t)
  ;(setq company-transformers '(company-sort-by-backend-importance))
@@ -299,7 +301,15 @@
  (define-key company-active-map [tab] 'company-complete-selection)
  (define-key company-active-map (kbd "C-h") nil)
  (define-key company-active-map (kbd "C-S-h") 'company-show-doc-buffer)
- 
+
+ (eval-safe
+  (require 'company-go)
+  (add-hook
+   'go-mode-hook
+   (lambda ()
+     (set (make-local-variable 'company-backends) '(company-go))
+     (company-mode))))
+
  (require 'company-quickhelp)
  )
 
