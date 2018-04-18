@@ -303,21 +303,26 @@
  (define-key company-active-map (kbd "C-S-h") 'company-show-doc-buffer)
 
  (eval-safe
+  (require 'go-mode)
   (require 'company-go)
-  (add-hook
-   'go-mode-hook
-   (lambda ()
-     (set (make-local-variable 'company-backends) '(company-go))
-     (eval-safe (eldoc-mode))
-     (eval-safe (flycheck-mode))
-     (company-mode))))
+  (defun go-mode-hooks ()
+    (if (fboundp 'gofmt-before-save)
+        (add-hook 'after-save-hook 'gofmt-before-save)
+      )
+    (set (make-local-variable 'company-backends) '(company-go))
+    (eval-safe (eldoc-mode))
+    (eval-safe (flycheck-mode))
+    (company-mode)
+    )
+  (add-hook 'go-mode-hook 'go-mode-hooks)
+  )
+
  (require 'company-quickhelp)
  )
 
 (eval-safe
- (with-eval-after-load 'rust-mode
-   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
  (require 'rust-mode)
+ (setq rust-format-on-save t)
  (defun rust-mode-hooks ()
    (if (fboundp 'company-indent-or-complete-common)
        (progn
@@ -326,7 +331,10 @@
          ))
    (eval-safe (racer-mode))
    (eval-safe (eldoc-mode))
-   (eval-safe (flycheck-mode))
+   (eval-safe
+    (flycheck-mode)
+    (flycheck-rust-setup)
+    )
    (eval-safe
     (company-mode)
     (company-quickhelp-mode))
