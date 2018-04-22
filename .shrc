@@ -930,11 +930,6 @@ shrc_setup_x() (
       ibus-daemon -xrd
     fi
   fi
-
-#  if command_exists gsettings; then
-#    gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'jp')]"
-#    gsettings set org.gnome.desktop.input-sources sources "[('ibus', 'mozc-jp')]"
-#  fi
 )
 
 activate_hsenv() {
@@ -1041,6 +1036,14 @@ shrc_dep_emacs() (
     ; do
     emacs --batch --eval "(progn (load \"~/.emacs\")(require 'package)(package-initialize)(package-install '$package))"
   done
+)
+
+shrc_config_gnome() (
+  if command_exists gsettings; then
+    gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'jp')]"
+    gsettings set org.gnome.desktop.input-sources sources "[('ibus', 'mozc-jp')]"
+    gsettings set org.gnome.desktop.wm.keybindings switch-group "['disabled']"
+  fi
 )
 
 idea() (
