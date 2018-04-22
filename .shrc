@@ -999,6 +999,15 @@ brew-cask-upgrade() (
   done; 
 )
 
+shrc_update_depot_tools() (
+  set -eux
+  if command_exists gclient; then
+    cd $(dirname "$(which gclient)")
+    git fetch --prune
+    git reset --hard origin/master
+  fi
+)
+
 shrc_update_xenv() (
   set -eux
   for dir in ~/.rbenv ~/.rbenv/plugins/ruby-build ~/.nodenv ~/.nodenv/plugins/node-build; do
