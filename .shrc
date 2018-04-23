@@ -1029,8 +1029,16 @@ shrc_dep_go() (
 
 shrc_dep_rust() (
   set -eux
-  rustup component add rustfmt-preview rls-preview rust-analysis rust-src
-  rustup component add rustfmt-preview rls-preview rust-analysis rust-src --toolchain=stable
+  if ! command_exists rustup; then
+    curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --no-modify-path --verbose
+    shrc_pathmunge "$HOME/.cargo/bin"
+  fi
+  rustup self update
+  if [ -f rust-toolchain ]; then
+    rustup install $(cat rust-toolchain)
+    rustup component add --toolchain $(cat rust-toolchain) rustfmt-preview rls-preview rust-analysis rust-src
+  fi
+  rustup component add --toolchain=stable rustfmt-preview rls-preview rust-analysis rust-src
   rustup run stable cargo install racer
 )
 
