@@ -127,7 +127,7 @@
      (push package-archive package-archives))
  '(
    ("gnu" . "https://elpa.gnu.org/packages/")
-   ("melpa" . "http://melpa.org/packages/")
+   ("melpa" . "https://melpa.org/packages/")
 ;   ("melpa-stable" . "http://stable.melpa.org/packages/")
 ;   ("elpa" . "http://tromey.com/elpa/")
 ;   ("marmalade" . "http://marmalade-repo.org/packages/")
@@ -322,6 +322,10 @@
  )
 
 (eval-safe
+ (if (fboundp 'with-eval-after-load)
+     (with-eval-after-load 'rust-mode
+       (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+       ))
  (require 'rust-mode)
  (setq rust-format-on-save t)
  (defun rust-mode-hooks ()
@@ -332,10 +336,7 @@
          ))
    (eval-safe (racer-mode))
    (eval-safe (eldoc-mode))
-   (eval-safe
-    (flycheck-mode)
-    (flycheck-rust-setup)
-    )
+   (eval-safe (flycheck-mode))
    (eval-safe
     (company-mode)
     (company-quickhelp-mode))

@@ -1049,6 +1049,8 @@ shrc_dep_emacs() (
       company-go \
       company-quickhelp \
       racer \
+      flycheck-rust \
+      rust-mode \
       intero \
     ; do
     emacs --batch --eval "(progn (load \"~/.emacs\")(require 'package)(package-initialize)(package-install '$package))"
