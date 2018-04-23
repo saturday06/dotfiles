@@ -301,23 +301,24 @@
  (define-key company-active-map [tab] 'company-complete-selection)
  (define-key company-active-map (kbd "C-h") nil)
  (define-key company-active-map (kbd "C-S-h") 'company-show-doc-buffer)
-
- (eval-safe
-  (require 'go-mode)
-  (require 'company-go)
-  (defun go-mode-hooks ()
-    (if (fboundp 'gofmt-before-save)
-        (add-hook 'after-save-hook 'gofmt-before-save)
-      )
-    (set (make-local-variable 'company-backends) '(company-go))
-    (eval-safe (eldoc-mode))
-    (eval-safe (flycheck-mode))
-    (company-mode)
-    )
-  (add-hook 'go-mode-hook 'go-mode-hooks)
-  )
-
  (require 'company-quickhelp)
+ )
+
+(eval-safe
+ (require 'company-go)
+ (defun go-mode-hooks ()
+   (local-set-key (kbd "M-.") #'godef-jump)
+   (local-set-key (kbd "M-,") #'pop-tag-mark)
+   (add-hook 'before-save-hook #'gofmt-before-save)
+   (set (make-local-variable 'company-backends) '(company-go))
+   (eval-safe
+    (eldoc-mode)
+    (go-eldoc-setup)
+    )
+   (eval-safe (flycheck-mode))
+   (company-mode)
+   )
+ (add-hook 'go-mode-hook #'go-mode-hooks)
  )
 
 (eval-safe
