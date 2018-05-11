@@ -1034,6 +1034,7 @@ shrc_dep_rust() (
     shrc_pathmunge "$HOME/.cargo/bin"
   fi
   rustup self update
+  rustup update
   if [ -f rust-toolchain ]; then
     rustup install $(cat rust-toolchain)
     rustup component add --toolchain $(cat rust-toolchain) rustfmt-preview rls-preview rust-analysis rust-src
