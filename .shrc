@@ -1011,7 +1011,7 @@ shrc_update_depot_tools() (
 shrc_update_xenv() (
   set -eux
   for dir in ~/.rbenv ~/.rbenv/plugins/ruby-build ~/.nodenv ~/.nodenv/plugins/node-build; do
-    if [ -d $dir ]; then
+    if [ -d $dir/.git ]; then
       cd $dir
       git fetch --prune
       git reset --hard origin/master
