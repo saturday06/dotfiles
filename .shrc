@@ -1040,7 +1040,13 @@ shrc_dep_rust() (
     rustup component add --toolchain $(cat rust-toolchain) rustfmt-preview rls-preview rust-analysis rust-src
   fi
   rustup component add --toolchain=stable rustfmt-preview rls-preview rust-analysis rust-src
+  rustup install nightly-2018-05-29
+  cargo +nightly-2018-05-29 install clippy --version 0.0.206
   rustup run stable cargo install racer
+)
+
+shrc_clippy() (
+  rustup run nightly-2018-05-29 cargo clippy
 )
 
 shrc_dep_emacs() (
