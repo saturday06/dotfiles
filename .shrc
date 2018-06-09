@@ -1086,15 +1086,27 @@ shrc_config_gnome() (
 )
 
 idea() (
-  shrc_nohup ~/.local/idea-IC/bin/idea.sh
+  dir=$(find ~/.local -maxdepth 1 -name 'idea-IC-*'|awk -F- '{print $3"_ "$0}'|awk -F. '{printf("%09d%09d%09d %s\n",$1,$2,$3,$0)}'|sort -r|head -n 1|awk '{print $3}')
+  echo $dir
+  if [ -d "$dir" ]; then
+    shrc_nohup "$dir/bin/idea.sh"
+  fi
 )
 
 clion() (
-  shrc_nohup ~/.local/clion/bin/clion.sh
+  dir=$(find ~/.local -maxdepth 1 -name 'clion-*'|awk -F- '{print $3"_ "$0}'|awk -F. '{printf("%09d%09d%09d %s\n",$1,$2,$3,$0)}'|sort -r|head -n 1|awk '{print $3}')
+  echo $dir
+  if [ -d "$dir" ]; then
+    shrc_nohup "$dir/bin/clion.sh"
+  fi
 )
 
 pycharm() (
-  shrc_nohup ~/.local/pycharm/bin/pycharm.sh
+  dir=$(find ~/.local -maxdepth 1 -name 'pycharm-*'|awk -F- '{print $3"_ "$0}'|awk -F. '{printf("%09d%09d%09d %s\n",$1,$2,$3,$0)}'|sort -r|head -n 1|awk '{print $3}')
+  echo $dir
+  if [ -d "$dir" ]; then
+    shrc_nohup "$dir/bin/pycharm.sh"
+  fi
 )
 
 eclipse() (
