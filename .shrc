@@ -590,7 +590,7 @@ shrc_start() {
   return 0;
 }
 
-shrc_update() (
+shrc-update() (
   base_url="https://raw.githubusercontent.com/saturday06/dotfiles/master"
 
   for downloader in \
@@ -999,7 +999,7 @@ brew-cask-upgrade() (
   done; 
 )
 
-shrc_update_depot_tools() (
+shrc-update-depot_tools() (
   set -eux
   if command_exists gclient; then
     cd $(dirname "$(which gclient)")
@@ -1008,7 +1008,54 @@ shrc_update_depot_tools() (
   fi
 )
 
-shrc_update_xenv() (
+shrc_setup_intellij_variant() (
+  dir_prefix=$1
+  script=$2
+  title=$3
+
+  if [ -z "$dir_prefix" ]; then
+    exit 1
+  fi
+
+  if [ -z "$script" ]; then
+    exit 1
+  fi
+
+  if [ -z "$title" ]; then
+    exit 1
+  fi
+
+  dir=$(find ~/.local -maxdepth 1 -name "${dir_prefix}-*"|awk -F- '{print $3"_ "$0}'|awk -F. '{printf("%09d%09d%09d %s\n",$1,$2,$3,$0)}'|sort -r|head -n 1|awk '{print $3}')
+  if [ -d "$dir" ]; then
+    cat <<SH > ~/.local/bin/$script
+#!/bin/sh
+set -eu
+nohup $dir/bin/$script.sh > /dev/null 2> /dev/null &
+SH
+    chmod 700 ~/.local/bin/$script
+    cat <<DESKTOP > ~/.local/share/applications/shrc-$script.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=$title
+Comment=$title
+Exec="$dir/bin/$script.sh"
+Icon="$dir/bin/$script.png"
+Terminal=false
+Categories=Development;IDE;
+DESKTOP
+  fi
+)
+
+shrc-update-desktop() (
+  mkdir -p ~/.local/bin ~/.local/share/applications
+
+  shrc_setup_intellij_variant idea-IC idea 'IntelliJ IDEA Community'
+  shrc_setup_intellij_variant clion clion CLion
+  shrc_setup_intellij_variant pycharm pycharm PyCharm
+)
+
+shrc-update-xenv() (
   set -eux
   for dir in ~/.rbenv ~/.rbenv/plugins/ruby-build ~/.nodenv ~/.nodenv/plugins/node-build; do
     if [ -d $dir/.git ]; then
@@ -1019,7 +1066,7 @@ shrc_update_xenv() (
   done
 )
 
-shrc_dep_go() (
+shrc-update-go() (
   set -eux
   go get -u github.com/nsf/gocode
   go get -u github.com/rogpeppe/godef
@@ -1027,7 +1074,7 @@ shrc_dep_go() (
   go get -u github.com/kisielk/errcheck
 )
 
-shrc_dep_rust() (
+shrc-dep-rust() (
   set -eux
   if ! command_exists rustup; then
     curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --no-modify-path --verbose
@@ -1057,12 +1104,12 @@ shrc_dep_rust() (
   fi
 )
 
-shrc_clippy() (
+shrc-clippy() (
   clippy_toolchain=nightly-2018-05-29
   rustup run $clippy_toolchain cargo clippy
 )
 
-shrc_dep_emacs() (
+shrc-update-emacs() (
   set -eux
   emacs --batch --eval "(progn (load \"~/.emacs\")(require 'package)(package-initialize)(package-refresh-contents))"
   for package in \
@@ -1082,30 +1129,6 @@ shrc_config_gnome() (
     gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'jp')]"
     gsettings set org.gnome.desktop.input-sources sources "[('ibus', 'mozc-jp')]"
     gsettings set org.gnome.desktop.wm.keybindings switch-group "['disabled']"
-  fi
-)
-
-idea() (
-  dir=$(find ~/.local -maxdepth 1 -name 'idea-IC-*'|awk -F- '{print $3"_ "$0}'|awk -F. '{printf("%09d%09d%09d %s\n",$1,$2,$3,$0)}'|sort -r|head -n 1|awk '{print $3}')
-  echo $dir
-  if [ -d "$dir" ]; then
-    shrc_nohup "$dir/bin/idea.sh"
-  fi
-)
-
-clion() (
-  dir=$(find ~/.local -maxdepth 1 -name 'clion-*'|awk -F- '{print $3"_ "$0}'|awk -F. '{printf("%09d%09d%09d %s\n",$1,$2,$3,$0)}'|sort -r|head -n 1|awk '{print $3}')
-  echo $dir
-  if [ -d "$dir" ]; then
-    shrc_nohup "$dir/bin/clion.sh"
-  fi
-)
-
-pycharm() (
-  dir=$(find ~/.local -maxdepth 1 -name 'pycharm-*'|awk -F- '{print $3"_ "$0}'|awk -F. '{printf("%09d%09d%09d %s\n",$1,$2,$3,$0)}'|sort -r|head -n 1|awk '{print $3}')
-  echo $dir
-  if [ -d "$dir" ]; then
-    shrc_nohup "$dir/bin/pycharm.sh"
   fi
 )
 
