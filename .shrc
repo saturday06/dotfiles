@@ -1074,7 +1074,7 @@ shrc-update-go() (
   go get -u github.com/kisielk/errcheck
 )
 
-shrc-dep-rust() (
+shrc-update-rust() (
   set -eux
   if ! command_exists rustup; then
     curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --no-modify-path --verbose
