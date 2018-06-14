@@ -1039,8 +1039,8 @@ Version=1.0
 Type=Application
 Name=$title
 Comment=$title
-Exec="$dir/bin/$script.sh"
-Icon="$dir/bin/$script.png"
+Exec=$dir/bin/$script.sh
+Icon=$dir/bin/$script.png
 Terminal=false
 Categories=Development;IDE;
 DESKTOP
