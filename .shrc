@@ -1052,7 +1052,7 @@ shrc-update-desktop() (
 
   shrc_setup_intellij_variant idea-IC idea 'IntelliJ IDEA Community'
   shrc_setup_intellij_variant clion clion CLion
-  shrc_setup_intellij_variant pycharm pycharm PyCharm
+  shrc_setup_intellij_variant pycharm-community pycharm PyCharm
 )
 
 shrc-update-xenv() (
