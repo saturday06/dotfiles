@@ -1030,7 +1030,9 @@ shrc_setup_intellij_variant() (
     cat <<SH > ~/.local/bin/$script
 #!/bin/sh
 set -eu
-nohup $dir/bin/$script.sh > /dev/null 2> /dev/null &
+command=$dir/bin/$script.sh
+echo \$command
+nohup \$command > /dev/null 2> /dev/null &
 SH
     chmod 700 ~/.local/bin/$script
     cat <<DESKTOP > ~/.local/share/applications/shrc-$script.desktop
