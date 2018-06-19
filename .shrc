@@ -232,6 +232,7 @@ shrc_main() {
     defaults write com.apple.finder QuitMenuItem -bool yes
     eval $(/usr/libexec/path_helper -s) || true
     export HOMEBREW_NO_ANALYTICS=1
+    export HOMEBREW_UPGRADE_CLEANUP=1
   elif [ "`uname -r | grep -e '-co-' 2> /dev/null`" != "" ]; then
     # coLinux
     export DISPLAY=10.0.2.2:0
