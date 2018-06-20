@@ -138,6 +138,7 @@ shrc_main() {
   shrc_add_git_config core.quotepath false
   shrc_add_git_config core.precomposeunicode true
   shrc_add_git_config pull.ff only
+  shrc_add_git_config push.default current
 
   if [ "`uname -o 2> /dev/null`" = "Cygwin" ]; then
     # Cygwin
