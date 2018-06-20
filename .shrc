@@ -1,3 +1,4 @@
+
 # -*- coding: us-ascii-unix; mode: shell-script -*-
 
 shrc_main() {
@@ -1034,7 +1035,11 @@ shrc_setup_intellij_variant() (
 set -eu
 command=$dir/bin/$script.sh
 echo \$command
-nohup \$command > /dev/null 2> /dev/null &
+if which zsh; then
+  nohup zsh -c "[ -r '$HOME/.zshrc' ] && source '$HOME/.zshrc'; exec '\$command'" > /dev/null 2> /dev/null &
+else
+  nohup \$command > /dev/null 2> /dev/null &
+fi
 SH
     chmod 700 ~/.local/bin/$script
     cat <<DESKTOP > ~/.local/share/applications/shrc-$script.desktop
@@ -1043,7 +1048,7 @@ Version=1.0
 Type=Application
 Name=$title
 Comment=$title
-Exec=$dir/bin/$script.sh
+Exec=$HOME/.local/bin/$script
 Icon=$dir/bin/$script.png
 Terminal=false
 Categories=Development;IDE;
