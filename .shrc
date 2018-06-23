@@ -1056,8 +1056,8 @@ shrc_setup_intellij_variant() (
 set -eu
 command=$dir/bin/$script.sh
 echo \$command
-if which zsh; then
-  nohup zsh -c "[ -r '$HOME/.zshrc' ] && source '$HOME/.zshrc'; exec '\$command'" > /dev/null 2> /dev/null &
+if which bash; then
+  nohup bash -c "[ -r '$HOME/.bashrc' ] && source '$HOME/.bashrc'; exec '\$command'" > /dev/null 2> /dev/null &
 else
   nohup \$command > /dev/null 2> /dev/null &
 fi
