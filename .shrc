@@ -1,4 +1,3 @@
-
 # -*- coding: us-ascii-unix; mode: shell-script -*-
 
 shrc_main() {
@@ -492,6 +491,10 @@ shrc_main() {
 
     if command_exists phpenv; then
       eval "$(phpenv init -)"
+    fi
+
+    if [ -r $HOME/.local/emsdk/emsdk_env.sh ]; then
+      source $HOME/.local/emsdk/emsdk_env.sh
     fi
 
     NVM_DIR="$HOME/.nvm"
@@ -1010,6 +1013,24 @@ shrc-update-depot_tools() (
     git reset --hard origin/master
   fi
 )
+
+shrc-update-emsdk() {
+  (
+    mkdir -p $HOME/.local
+    cd $HOME/.local
+    if [ ! -d emsdk ]; then
+      git clone https://github.com/juj/emsdk.git
+      cd emsdk
+    else
+      cd emsdk
+      git pull
+    fi
+    ./emsdk install latest
+    ./emsdk activate latest
+  )
+
+  source $HOME/.local/emsdk/emsdk_env.sh
+}
 
 shrc_setup_intellij_variant() (
   dir_prefix=$1
