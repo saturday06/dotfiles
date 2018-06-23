@@ -493,10 +493,6 @@ shrc_main() {
       eval "$(phpenv init -)"
     fi
 
-    if [ -r $HOME/.local/emsdk/emsdk_env.sh ]; then
-      source $HOME/.local/emsdk/emsdk_env.sh
-    fi
-
     NVM_DIR="$HOME/.nvm"
     if [ -x "$HOME/.nodenv/bin/nodenv" ]; then
       shrc_pathmunge $HOME/.nodenv/bin
@@ -1029,6 +1025,10 @@ shrc-update-emsdk() {
     ./emsdk activate latest
   )
 
+  # source $HOME/.local/emsdk/emsdk_env.sh
+}
+
+shrc-emsdk-env() {
   source $HOME/.local/emsdk/emsdk_env.sh
 }
 
