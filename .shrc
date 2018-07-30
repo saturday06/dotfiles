@@ -1125,19 +1125,15 @@ shrc-update-rust() (
     rustup component add --toolchain $(cat rust-toolchain) rustfmt-preview rls-preview rust-analysis rust-src
   fi
   rustup component add --toolchain=stable rustfmt-preview rls-preview rust-analysis rust-src
+  rustup component add --toolchain=nightly rustfmt-preview rls-preview rust-analysis rust-src
 
   if ! racer --version; then
-    cargo +stable install racer
+    cargo +nightly install racer
   fi
 
   if ! cargo +stable outdated --version; then
     cargo +stable install cargo-outdated
   fi
-)
-
-shrc-clippy() (
-  clippy_toolchain=nightly-2018-05-29
-  rustup run $clippy_toolchain cargo clippy
 )
 
 shrc-update-emacs() (
