@@ -1115,17 +1115,23 @@ shrc-update-go() (
 shrc-update-rust() (
   set -eux
   if ! command_exists rustup; then
-    curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable --no-modify-path --verbose
+    curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain none --no-modify-path --verbose
     shrc_pathmunge "$HOME/.cargo/bin"
   fi
+
   rustup self update
   rustup update
-  if [ -f rust-toolchain ]; then
-    rustup install $(cat rust-toolchain)
-    rustup component add --toolchain $(cat rust-toolchain) rustfmt-preview rls-preview rust-analysis rust-src
-  fi
+
+  rustup install stable
   rustup component add --toolchain=stable rustfmt-preview rls-preview rust-analysis rust-src
-  rustup component add --toolchain=nightly rustfmt-preview rls-preview rust-analysis rust-src
+
+  rustup install nightly
+  rustup component add --toolchain=nightly rust-analysis rust-src
+  
+  if [ -f rust-toolchain ]; then
+    rustup install 
+    rustup component add --toolchain $(cat rust-toolchain) rust-analysis rust-src rustfmt-preview
+  fi
 
   if ! racer --version; then
     cargo +nightly install racer
