@@ -1127,9 +1127,9 @@ shrc-update-rust() (
 
   rustup install nightly
   rustup component add --toolchain=nightly rust-analysis rust-src
-  
+
   if [ -f rust-toolchain ]; then
-    rustup install 
+    rustup install
     rustup component add --toolchain $(cat rust-toolchain) rust-analysis rust-src rustfmt-preview
   fi
 
