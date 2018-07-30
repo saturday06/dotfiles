@@ -1126,13 +1126,6 @@ shrc-update-rust() (
   fi
   rustup component add --toolchain=stable rustfmt-preview rls-preview rust-analysis rust-src
 
-  clippy_toolchain=nightly-2018-05-29
-  clippy_version=0.0.206
-  if ! rustup run $clippy_toolchain cargo clippy --version; then
-    rustup install $clippy_toolchain
-    cargo +$clippy_toolchain install clippy --version $clippy_version
-  fi
-
   if ! racer --version; then
     cargo +stable install racer
   fi
