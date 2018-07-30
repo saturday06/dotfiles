@@ -1130,7 +1130,7 @@ shrc-update-rust() (
 
   if [ -f rust-toolchain ]; then
     rustup install $(cat rust-toolchain)
-    rustup component add --toolchain $(cat rust-toolchain) rust-analysis rust-src rustfmt-preview
+    rustup component add --toolchain $(cat rust-toolchain) rust-analysis rust-src
   fi
 
   if ! racer --version; then
