@@ -434,6 +434,13 @@ shrc_main() {
     done
   fi
 
+  if [ -z "$ANDROID_NDK_HOME" ]; then
+    android_ndk_home=$(find $HOME/.local -maxdepth 1 -type d -name 'android-ndk-*' | sort | head -n 1)
+    if [ -n "$android_ndk_home" ]; then
+      export ANDROID_NDK_HOME=$android_ndk_home
+    fi
+  fi
+
   shrc_pathmunge $GOROOT/bin
   shrc_pathmunge $GOPATH/bin
 
