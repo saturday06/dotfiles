@@ -887,6 +887,10 @@ shrc_pathmunge() {
 }
 
 shrc_setup_x() (
+  if [ "`uname -s 2> /dev/null`" = "Darwin" ]; then
+    return
+  fi
+
   if ! command_exists xmodmap; then
     echo xmodmap not found
     return
