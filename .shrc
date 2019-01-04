@@ -332,7 +332,7 @@ shrc_main() {
     shrc_pathmunge $d/sbin
   done
 
-  for d in .cabal .rbenv .rbenv/shims .phpenv .cargo .linuxbrew; do
+  for d in .cabal .rbenv .rbenv/shims .phpenv .cargo .linuxbrew .pub-cache; do
     shrc_pathmunge $HOME/$d/bin
     shrc_pathmunge $HOME/$d/sbin
   done
@@ -365,6 +365,7 @@ shrc_main() {
       sbt \
       sde-external \
       smartgithg \
+      dart-sdk \
     ; do
     shrc_pathmunge $HOME/.local/$d/bin
     shrc_pathmunge $HOME/.local/$d/sbin
