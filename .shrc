@@ -1137,7 +1137,7 @@ shrc-update-rust() (
 
   for toolchain in stable beta nightly $(cat rust-toolchain 2> /dev/null); do
     rustup install $toolchain
-    rustup component add --toolchain=$toolchain rustfmt-preview rls-preview rust-analysis rust-src clippy-preview
+    rustup component add --toolchain=$toolchain rustfmt rls rust-analysis rust-src clippy
   done
 
   if ! racer --version; then
