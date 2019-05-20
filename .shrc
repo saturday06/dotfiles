@@ -232,7 +232,6 @@ shrc_main() {
     shrc_add_git_config core.precomposeunicode true
     defaults write com.apple.finder QuitMenuItem -bool yes
     eval $(/usr/libexec/path_helper -s) || true
-    export HOMEBREW_NO_ANALYTICS=1
   elif [ "`uname -r | grep -e '-co-' 2> /dev/null`" != "" ]; then
     # coLinux
     export DISPLAY=10.0.2.2:0
@@ -241,6 +240,9 @@ shrc_main() {
     export DISPLAY=:0
     export GHCRTS="-V0 $GHCRTS"
   fi
+
+  export HOMEBREW_NO_ANALYTICS=1
+  export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
   while [ "" = "" ]; do
     ls --color=auto --show-control-chars -F > /dev/null 2> /dev/null
