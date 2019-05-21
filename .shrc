@@ -475,7 +475,7 @@ shrc_main() {
     fi
   fi
   
-  (shrc_setup_x&)
+  # (shrc_setup_x&)
 
   if $interactive_mode; then
     ## Setup proper term information for emacs ansi-term mode
