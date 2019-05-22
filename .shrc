@@ -338,6 +338,10 @@ shrc_main() {
     shrc_pathmunge $HOME/$d/sbin
   done
 
+  for d in .dotnet/tools; do
+    shrc_pathmunge $HOME/$d
+  done
+
   for d in .nodebrew/current $HOME/.local/node $HOME/.local/nodejs $HOME/.dotnet/tools; do
     shrc_pathmunge $d/bin
     if [ $? -eq 0 ]; then
