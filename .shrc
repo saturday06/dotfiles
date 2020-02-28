@@ -1032,7 +1032,7 @@ shrc-update-emsdk() {
     mkdir -p $HOME/.local
     cd $HOME/.local
     if [ ! -d emsdk ]; then
-      git clone https://github.com/juj/emsdk.git
+      git clone https://github.com/emscripten-core/emsdk.git
       cd emsdk
     else
       cd emsdk
