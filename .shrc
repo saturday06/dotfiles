@@ -62,7 +62,7 @@ shrc_main() {
       compinit
     fi
 
-    if [ vcs_info > /dev/null 2> /dev/null ]; then
+    if vcs_info > /dev/null 2> /dev/null; then
       zstyle ':vcs_info:git:*' check-for-changes true
       zstyle ':vcs_info:git:*' stagedstr "%F{yellow}!"
       zstyle ':vcs_info:git:*' unstagedstr "%F{red}+"
