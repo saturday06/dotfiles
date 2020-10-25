@@ -13,11 +13,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Disable git config core.quotepath
+        run: git config core.quotepath off
       - uses: actions/checkout@v2
-      
-      - name: apt
+      - name: apt-get
         run: sudo apt-get update && sudo apt-get install shellcheck
-
+      - name: Check file permissions
+        run: |
+          shellcheck "$0"
+          git ls-files | while read -r f; do
+            if [ -x "$f" ]; then
+              echo "$f has unnecessary executable permission."
+              exit 1
+            fi
+          done
+      - name: Check file name character encoding
+        run: |
+          shellcheck "$0"
+          git ls-files | while read -r f; do
+            if [ "$(echo "$f" | nkf --guess)" != "ASCII (LF)" ]; then
+              echo "$f is non ascii file name."
+              exit 1
+            fi
+          done
+      - name: Check file content character encoding
+        run: |
+          shellcheck "$0"
+          git ls-files | while read -r f; do
+            if [ "$(nkf --guess "$f")" != "BINARY" ]; then
+              nkf -w -Lu -Z1 --in-place "$f"
+            fi
+          done
+          git diff --exit-code
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: shellcheck .shrc
