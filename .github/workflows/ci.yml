@@ -16,8 +16,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Disable git config core.quotepath
         run: git config core.quotepath off
-      - name: apt-get
-        run: sudo apt-get update && sudo apt-get install shellcheck
+      - name: Install deb packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y nkf shellcheck uchardet
+        env:
+          DEBIAN_FRONTEND: noninteractive
       - name: Check file permissions
         run: |
           shellcheck -s sh "$0"
@@ -31,8 +35,9 @@ jobs:
         run: |
           shellcheck -s sh "$0"
           git ls-files | while read -r f; do
-            if [ "$(echo "$f" | nkf --guess)" != "ASCII (LF)" ]; then
-              echo "$f is non ascii file name."
+            encoding=$(echo "$f" | uchardet)
+            if [ "$encoding" != "ASCII" ]; then
+              echo "$f is not ascii file name but $encoding."
               exit 1
             fi
           done
@@ -40,12 +45,18 @@ jobs:
         run: |
           shellcheck -s sh "$0"
           git ls-files | while read -r f; do
-            if [ "$(nkf --guess "$f")" != "BINARY" ]; then
-              nkf -w -Lu -Z1 --in-place "$f"
-            fi
+            encoding=$(file --brief --mime-encoding "$f")
+            case "$encoding" in
+              binary | us-ascii)
+                file "$f"
+                ;;
+              *)
+                echo "$f is not ascii but $encoding."
+                exit 1
+                ;;
+            esac
           done
           git diff --exit-code
-      # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
           shellcheck -s sh "$0"
