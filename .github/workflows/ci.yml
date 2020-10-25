@@ -20,7 +20,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install shellcheck
       - name: Check file permissions
         run: |
-          shellcheck "$0"
+          shellcheck -s sh "$0"
           git ls-files | while read -r f; do
             if [ -x "$f" ]; then
               echo "$f has unnecessary executable permission."
@@ -29,7 +29,7 @@ jobs:
           done
       - name: Check file name character encoding
         run: |
-          shellcheck "$0"
+          shellcheck -s sh "$0"
           git ls-files | while read -r f; do
             if [ "$(echo "$f" | nkf --guess)" != "ASCII (LF)" ]; then
               echo "$f is non ascii file name."
@@ -38,7 +38,7 @@ jobs:
           done
       - name: Check file content character encoding
         run: |
-          shellcheck "$0"
+          shellcheck -s sh "$0"
           git ls-files | while read -r f; do
             if [ "$(nkf --guess "$f")" != "BINARY" ]; then
               nkf -w -Lu -Z1 --in-place "$f"
@@ -47,4 +47,8 @@ jobs:
           git diff --exit-code
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: shellcheck .shrc
+        run: |
+          shellcheck -s sh "$0"
+          for sh in bash dash ksh sh; do
+            shellcheck -s $sh .shrc
+          done
