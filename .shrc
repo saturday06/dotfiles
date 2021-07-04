@@ -232,6 +232,7 @@ shrc_main() {
     shrc_add_git_config core.precomposeunicode true
     defaults write com.apple.finder QuitMenuItem -bool yes
     eval $(/usr/libexec/path_helper -s) || true
+    export LESSCHARSET=utf-8
   elif [ "`uname -r | grep -e '-co-' 2> /dev/null`" != "" ]; then
     # coLinux
     export DISPLAY=10.0.2.2:0
