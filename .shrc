@@ -41,22 +41,14 @@ shrc_main() {
 
     bindkey -e
 
-    # redbullgokgok
-    which git > /dev/null 2> /dev/null
-    if [ $? -eq 0 ]; then
-      :
-      #alias red=git;
-      #red config --global alias.bull pull
-    fi
-
     if [ "$TERM" = eterm-color ]; then
       bindkey -r "^[x"
     fi
 
-    if [ "`uname -o 2> /dev/null`" = "Cygwin" ]; then
+    if [ "$(uname -o 2> /dev/null)" = "Cygwin" ]; then
       shrc_compinit_u " $0: your os is Cygwin."
       is_cygwin=yes
-    elif [ "`uname -s 2> /dev/null`" = "Interix" ]; then
+    elif [ "$(uname -s 2> /dev/null)" = "Interix" ]; then
       shrc_compinit_u " $0: your os is Interix."
     else
       compinit
@@ -140,7 +132,7 @@ shrc_main() {
   shrc_add_git_config pull.ff only
   shrc_add_git_config push.default current
 
-  if [ "`uname -o 2> /dev/null`" = "Cygwin" ]; then
+  if [ "$(uname -o 2> /dev/null)" = "Cygwin" ]; then
     # Cygwin
     #export CYGWIN="nodosfilewarning error_start=dumper codepage:utf8"
     export CYGWIN="nodosfilewarning error_start=dumper"
@@ -148,11 +140,11 @@ shrc_main() {
     #export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/X11R6/bin:/usr/lib/lapack
     shrc_set_home
     if [ -n "$APPDATA" ]; then
-      appdata=`cygpath --unix "$APPDATA"`
-      shrc_pathmunge $appdata/npm
+      appdata=$(cygpath --unix "$APPDATA")
+      shrc_pathmunge "$appdata/npm"
     fi
     for p in "$ProgramW6432" "$PROGRAMFILES"; do
-      shrc_pathmunge $p/nodejs
+      shrc_pathmunge "$p/nodejs"
     done
     shrc_add_git_config core.filemode false
     for k in VBOX_INSTALL_PATH \
@@ -326,7 +318,7 @@ shrc_main() {
   fi
 
   if [ -z "$JAVA_HOME" ] && [ -x /usr/libexec/java_home ]; then
-    export JAVA_HOME=`/usr/libexec/java_home`
+    export JAVA_HOME=$(/usr/libexec/java_home)
   fi
 
   for d in $HOME "" /opt /usr /usr/local /usr/local/go /usr/local/heroku; do
@@ -455,30 +447,6 @@ shrc_main() {
     # export SBT_OPTS="-Xms256M -Xmx2048M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxMetaspaceSize=2048M"
     export SBT_OPTS="-Xms256M -Xmx4G -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxMetaspaceSize=2048M -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
   fi
-
-  if [ "$(uname -s)" = "Linux" ]; then
-    which_atom=$(which atom || true)
-    if [ -n "$which_atom" ]; then
-      atom2() (
-        to_lib_dir="$HOME/.local/atom-hack/lib"
-        mkdir -p "$to_lib_dir"
-        for from_lib_dir in /usr/lib /usr/lib64 /lib /lib64; do
-          if [ ! -d "$from_lib_dir" ]; then
-            continue
-          fi
-          find $from_lib_dir -name "libxcb.so*" | while read -r p; do
-            f=$(basename "$p")
-            sed -e 's/BIG-REQUESTS/_IG-REQUESTS/' "$p" > "$to_lib_dir/$f.tmp"
-            if ! cmp "$to_lib_dir/$f.tmp" "$to_lib_dir/$f"; then
-              cp -f "$to_lib_dir/$f.tmp" "$to_lib_dir/$f"
-            fi
-          done
-        done
-        export LD_LIBRARY_PATH=$(echo $to_lib_dir:$LD_LIBRARY_PATH | sed -e 's/:$//')
-        exec "$which_atom" --disable-gpu "$@"
-      )
-    fi
-  fi
   
   # (shrc_setup_x&)
 
@@ -497,10 +465,6 @@ shrc_main() {
       eval "$(rbenv init -)"
     elif command_exists rbenv; then
       eval "$(rbenv init -)"
-    elif [ -s "$HOME/.rvm/scripts/rvm" ]; then
-      source "$HOME/.rvm/scripts/rvm"
-      rvm autolibs read-fail
-      rvm rvmrc warning ignore allGemfiles
     fi
 
     if command_exists phpenv; then
@@ -558,7 +522,7 @@ shrc_start() {
   fi
 
   # root?
-  if [ "`id -u`" = "0" ]; then
+  if [ "$(id -u)" = "0" ]; then
     echo "root" >> "$tmp_log"
     return 0;
   fi
@@ -585,7 +549,7 @@ shrc_start() {
   fi
 
   log_file="$HOME/.shrc.d/log/`date '+%Y%m%d/%H%M%S'`_${shell_name}_$$.log"
-  log_dir=`dirname "$log_file"`
+  log_dir=$(dirname "$log_file")
   mkdir -p "$log_dir"
   if [ ! -w "$log_dir" ]; then
     echo "no log dir" >> "$tmp_log"
@@ -613,8 +577,7 @@ shrc-update() (
     "wget --output-document=@file @url" \
     "curl -Lf --output @file @url" \
   ; do
-    which `echo $downloader | sed 's/ .*$//'`
-    if [ $? -eq 0 ]; then
+    if command -v "$(echo "$downloader" | sed 's/ .*$//')"; then
       break
     fi
     downloader=""
@@ -628,84 +591,13 @@ shrc-update() (
   echo "downloader: $downloader"
 
   for file in .emacs .shrc; do
-    command=`echo $downloader | sed "s%@file%$HOME/$file.shared%" | sed "s%@url%$base_url/$file%"`
-    eval $command
+    command=$(echo "$downloader" | sed "s%@file%$HOME/$file.shared%" | sed "s%@url%$base_url/$file%")
+    eval "$command"
   done
 
   test -e ~/.emacs || echo "(load \"~/.emacs.shared\")" > ~/.emacs
   test -e ~/.zshrc || echo ". ~/.shrc" > ~/.zshrc
   test -e ~/.bashrc || echo ". ~/.shrc" > ~/.bashrc
-)
-
-lomake() (
-  cat <<'LOMAKE' | perl - $*
-    use strict;
-    use warnings;
-    use threads;
-    use IPC::Open3;
-    use Encode;
-    use Encode::Guess;
-    use Symbol 'gensym';
-
-    my @keys = qw(
-      ALLUSERSPROFILE ANT_HOME APPDATA COMMONPROGRAMFILES COMMONPROGRAMFILES(X86)
-      COMMONPROGRAMW6432 COMPUTERNAME COMSPEC CYGWIN DISPLAY EDITOR
-      FP_NO_HOST_CHECK HOME HOMEDRIVE HOMEPATH HOSTNAME INFOPATH JAVA_HOME
-      LOCALAPPDATA LOGNAME LOGONSERVER MANPATH NUMBER_OF_PROCESSORS OS PATH
-      PATHEXT PRINTER PROCESSOR_ARCHITECTURE PROCESSOR_IDENTIFIER PROCESSOR_LEVEL
-      PROCESSOR_REVISION PROGRAMDATA PROGRAMFILES PROGRAMFILES(X86) PROGRAMW6432
-      PUBLIC PWD SESSIONNAME SHLVL SHELL SYSTEMDRIVE SYSTEMROOT TEMP TERM TMP TZ
-      USER USERDOMAIN USERDOMAIN_ROAMINGPROFILE USERNAME USERPROFILE WINDIR _
-    );
-
-    my $systemroot = `cygpath -u '$ENV{"SYSTEMROOT"}'`;
-    $systemroot =~ s/\r?\n?$//;
-    $ENV{"PATH"} = join(":", (
-      "/usr/local/bin", "/usr/local/sbin", "/bin", "/usr/sbin",
-      "$systemroot/System32/Wbem", "$systemroot/System32", "$systemroot",
-    ));
-
-    sub acp {
-      my ($cp) = `chcp` =~ /([0-9]+)\r?\n?$/;
-      return defined $cp ? "CP$cp" : "UTF-8";
-    }
-
-    sub io_decode_thread {
-      my ($input, $output) = @_;
-      my $acp = acp;
-      while (my $line = <$input>) {
-        my $encoding = guess_encoding($line, ($acp));
-        if (ref($encoding)) {
-          $line = $encoding->decode($line);
-        }
-        print $output encode('utf-8', $line);
-      }
-    }
-
-    sub run_and_decode {
-      my ($stdin, $stdout, $stderr);
-      $stderr = gensym;
-      my $pid = open3($stdin, $stdout, $stderr, @_);
-      my $stdout_thread = threads->create(\&io_decode_thread, $stdout, *STDOUT);
-      my $stderr_thread = threads->create(\&io_decode_thread, $stderr, *STDERR);
-      waitpid($pid, 0);
-      $stdout_thread->join();
-      $stderr_thread->join();
-      close $stdout;
-      close $stderr;
-      close $stdin;
-      $?
-    }
-
-    foreach my $key (keys %ENV) {
-      unless (grep {$_ eq uc($key)} @keys) {
-        delete $ENV{$key}
-      }
-    }
-    $ENV{"SHELL"} = "/usr/bin/dash";
-    run_and_decode($ENV{"SHELL"}, "-c", "test -e Makefile||./autogen.sh")
-      || run_and_decode("/opt/lo/bin/make", @ARGV);
-LOMAKE
 )
 
 muhenkan_mod3() (
@@ -764,13 +656,13 @@ shrc_compinit_u() {
     message=$1
     sep="--"
     loop=${#message}
-    while [ $loop -ne 0 ]; do
-      loop=`expr $loop - 1`
+    while [ "$loop" != "0" ]; do
+      loop=$(expr $loop - 1)
       sep="-$sep"
     done
     echo
     echo $sep
-    echo $message
+    echo "$message"
     echo " compinit -u"
     echo $sep
     echo
@@ -782,16 +674,14 @@ shrc_nohup() (
   if [ -n "$ZSH_VERSION" ]; then
     eval "$* > /dev/null 2> /dev/null &!" &
   else
-    nohup $* > /dev/null 2> /dev/null
+    nohup "$@" > /dev/null 2> /dev/null
   fi
 )
 
 command_exists() (
   while [ $# -gt 0 ]; do
-    if ! which $1 > /dev/null 2> /dev/null; then
-      if ! which "$1" > /dev/null 2> /dev/null; then
-        return 1
-      fi
+    if ! command -v "$1" > /dev/null 2> /dev/null; then
+      return 1
     fi
     shift
   done
@@ -821,7 +711,7 @@ shrc_flock_timeout_0() (
   if command_exists flock; then
     flock --timeout=0 "$@" || true
   else
-    $@
+    "$@"
   fi
 )
 
@@ -830,7 +720,7 @@ shrc_add_git_config() (
   value=$2
   if command_exists git; then
     # git config --global --unset-all $config
-    shrc_flock_timeout_0 ~/.gitconfig git config --global $config $value
+    shrc_flock_timeout_0 ~/.gitconfig git config --global "$config" "$value"
   fi
 )
 
@@ -838,9 +728,9 @@ shrc_set_home() {
   if [ -w "$HOME" ]; then
     return
   fi
-  user_tmp="`id -nu 2> /dev/null`"
+  user_tmp="$(id -nu 2> /dev/null)"
   home_tmp=/home/$user_tmp
-  if [ "$user_tmp" != "" -a -d "$home_tmp" -a -x "$home_tmp" ]; then
+  if [ "$user_tmp" != "" ] && [ -d "$home_tmp" ] && [ -x "$home_tmp" ]; then
     export HOME=$home_tmp
   fi
 }
@@ -866,24 +756,26 @@ shrc_pathmunge_after_rvm() {
       }
       printf(paths[i])
     }
-  }' $1
+  }' "$1"
 }
 
 shrc_pathmunge() {
   echo "PATHMUNGE $1 --> $PATH"
-  if [ ! -d $1 ]; then
+  if [ ! -d "$1" ]; then
     echo "--> no arg"
     return
   fi
-  if [ "`echo $PATH | sed 's/:/\n/g' | grep -x $1`" != "" ]; then
+  if [ "$(echo "$PATH" | sed 's/:/\n/g' | grep -x "$1")" != "" ]; then
     echo "--> already found"
     return
   fi
   if [ "$2" = "after" ] ; then
-    export PATH="$PATH:$1"
+    PATH="$PATH:$1"
+    export PATH
     echo "--> $PATH"
   else
-    export PATH=`shrc_pathmunge_after_rvm $1`
+    PATH=$(shrc_pathmunge_after_rvm "$1")
+    export PATH
     echo "--> $PATH"
   fi
   if command_exists rehash; then
@@ -894,7 +786,7 @@ shrc_pathmunge() {
 }
 
 shrc_setup_x() (
-  if [ "`uname -s 2> /dev/null`" = "Darwin" ]; then
+  if [ "$(uname -s 2> /dev/null)" = "Darwin" ]; then
     return
   fi
 
@@ -903,7 +795,7 @@ shrc_setup_x() (
     return
   fi
 
-  for i in `seq 30`; do
+  for _ in $(seq 30); do
     if xmodmap -pk > /dev/null 2> /dev/null; then
       break
     fi
@@ -952,46 +844,10 @@ shrc_setup_x() (
   fi
 )
 
-activate_hsenv() {
-  local search_dir=$PWD
-  while [ $search_dir != "/" ]; do
-    local hsenv_found=false
-    for dir in `cd $search_dir && find . -maxdepth 1 -type d -name ".hsenv*"`; do
-      if $hsenv_found; then
-        echo multiple environments in $search_dir , manual activaton required
-        return
-      elif [ -n "$dir" ] && [ -e $search_dir/$dir/bin/activate ]; then
-        hsenv_found=true
-      fi
-    done
-    if ! $hsenv_found; then
-      search_dir=`cd $search_dir/.. && pwd`
-      continue
-    fi
-    if [ -n "$HSENV" ] && [ "$HSENV" != "$search_dir" ]; then
-      deactivate_hsenv
-    fi
-    if [ -z "$HSENV" ]; then
-      pwd_backup=$PWD
-      cd $search_dir
-      source .hsenv*/bin/activate
-      cd $pwd_backup
-    fi
-    return
-  done
-  if [ -n "$HSENV" ]; then
-    deactivate_hsenv
-  fi
-}
-
 mozc_jp() (
   gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'jp')]"
   sleep 1
   gsettings set org.gnome.desktop.input-sources sources "[('ibus', 'mozc-jp')]"
-)
-
-install_macports() (
-  PATH=/usr/bin:/usr/sbin:/bin:/sbin ./configure --enable-readline --prefix=$HOME/usr/macports --with-install-user=`id -un` --with-install-group=`id -gn`
 )
 
 update_mac() (
@@ -999,56 +855,14 @@ update_mac() (
   defaults write -g KeyRepeat -int 4 # normal minimum is 2 (30 ms)
 )
 
-brew-cask-upgrade() (
-  brew update
-  for app in $(brew cask list); do 
-    latest="$(brew cask info "${app}" | awk 'NR==1{print $2}')"
-    versions=($(LS_OPTIONS= \ls -1 "/usr/local/Caskroom/${app}/.metadata/"))
-    current=$(echo ${versions} | awk '{print $NF}')
-    if [[ "${latest}" = "latest" ]]; then 
-      echo "[?] ${app}: ${current} == ${latest}";
-      [[ "$1" = "-f" ]] && brew cask install "${app}" --force;
-      continue;
-    elif [[ "${current}" = "${latest}" ]]; then
-      echo "${app} ${current} is up to date"
-      continue;
-    fi
-    echo "[+] ${app}: ${current} -> ${latest}"; 
-    brew cask uninstall "${app}" --force; 
-    brew cask install "${app}"; 
-  done; 
-)
-
 shrc-update-depot_tools() (
   set -eux
   if command_exists gclient; then
-    cd $(dirname "$(which gclient)")
+    cd "$(dirname "$(command -v gclient)")"
     git fetch --prune
     git reset --hard origin/master
   fi
 )
-
-shrc-update-emsdk() {
-  (
-    mkdir -p $HOME/.local
-    cd $HOME/.local
-    if [ ! -d emsdk ]; then
-      git clone https://github.com/emscripten-core/emsdk.git
-      cd emsdk
-    else
-      cd emsdk
-      git pull
-    fi
-    ./emsdk install latest
-    ./emsdk activate latest
-  )
-
-  # source $HOME/.local/emsdk/emsdk_env.sh
-}
-
-shrc-emsdk-env() {
-  source $HOME/.local/emsdk/emsdk_env.sh
-}
 
 shrc_setup_intellij_variant() (
   dir_prefix=$1
@@ -1072,7 +886,7 @@ shrc_setup_intellij_variant() (
     exit 1
   fi
 
-  cat <<SH > ~/.local/bin/$script
+  cat <<SH > "$HOME/.local/bin/$script"
 #!/bin/sh
 set -eu
 
@@ -1089,8 +903,8 @@ else
 fi
 SH
 
-  chmod 700 ~/.local/bin/$script
-  cat <<DESKTOP > ~/.local/share/applications/shrc-$script.desktop
+  chmod 700 "$HOME/.local/bin/$script"
+  cat <<DESKTOP > "$HOME/.local/share/applications/shrc-$script.desktop"
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1142,8 +956,8 @@ shrc-update-rust() (
   rustup update
 
   for toolchain in stable beta nightly $(cat rust-toolchain 2> /dev/null); do
-    rustup install $toolchain
-    rustup component add --toolchain=$toolchain rustfmt rls rust-analysis rust-src clippy
+    rustup install "$toolchain"
+    rustup component add "--toolchain=$toolchain" rustfmt rls rust-analysis rust-src clippy
   done
 
   if ! racer --version; then
