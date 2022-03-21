@@ -334,7 +334,7 @@ shrc_main() {
     shrc_pathmunge $d/sbin
   done
 
-  for d in .cabal .rbenv .rbenv/shims .phpenv .cargo .linuxbrew .pub-cache; do
+  for d in .cabal .rbenv .rbenv/shims .phpenv .cargo .linuxbrew .pub-cache .poetry; do
     shrc_pathmunge $HOME/$d/bin
     shrc_pathmunge $HOME/$d/sbin
   done
