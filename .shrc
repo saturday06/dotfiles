@@ -61,7 +61,9 @@ shrc_main() {
       zstyle ':vcs_info:*' formats "%F{green}%c%u[%b]%f"
       zstyle ':vcs_info:*' actionformats '[%b|%a]'
       precmd_vcs_info() {
-        LC_ALL=en_US.UTF-8 vcs_info
+        if ! (echo "$PWD" | grep -E '^/mnt/[a-z]/' > /dev/null 2>&1); then
+          LC_ALL=en_US.UTF-8 vcs_info
+        fi
       }
       add-zsh-hook precmd precmd_vcs_info
       RPROMPT='${vcs_info_msg_0_}'$RPROMPT
