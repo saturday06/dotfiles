@@ -66,7 +66,7 @@ shrc_main() {
         fi
       }
       add-zsh-hook precmd precmd_vcs_info
-      RPROMPT='${vcs_info_msg_0_}'$RPROMPT
+      RPROMPT="\${vcs_info_msg_0_}"$RPROMPT
     fi
 
     # RE: Case insensitive completion problems with cygwin
@@ -77,17 +77,14 @@ shrc_main() {
     #zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
     zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
     zstyle ':completion:*:default' menu select=1
-    if [ -f "${HOME}/.zshrc.local" ]; then
-      source "${HOME}/.zshrc.local"
-    fi
 
     rebasedir() (
-      find $1 -type f -iregex ".+\\.\\(dll\\|exe\\)$" #| xargs rebase -v
+      find "$1" -type f -iregex ".+\\.\\(dll\\|exe\\)$" #| xargs rebase -v
     )
 
     rebaselocal() (
       rebasedir /usr/local
-      rebasedir $HOME/.rbenv
+      rebasedir "$HOME/.rbenv"
     )
 
     if command_exists direnv; then
@@ -145,9 +142,9 @@ shrc_main() {
       appdata=$(cygpath --unix "$APPDATA")
       shrc_pathmunge "$appdata/npm"
     fi
-    for p in "$ProgramW6432" "$PROGRAMFILES"; do
-      shrc_pathmunge "$p/nodejs"
-    done
+    # for p in "$ProgramW6432" "$PROGRAMFILES"; do
+    #   shrc_pathmunge "$p/nodejs"
+    # done
     shrc_add_git_config core.filemode false
     for k in VBOX_INSTALL_PATH \
       PSModulePath \
@@ -161,14 +158,15 @@ shrc_main() {
     tmp_path=$PATH
     filtered_path=
     while true; do
-      head=$(echo $tmp_path | sed 's/:.\+//')
-      tmp_path=$(echo $tmp_path | sed 's/^[^:]*\(.*\)/\1/' | sed 's/^://')
+      head=$(echo "$tmp_path" | sed 's/:.\+//')
+      tmp_path=$(echo "$tmp_path" | sed 's/^[^:]*\(.*\)/\1/' | sed 's/^://')
       if [ "$head" = "" ]; then
-        export PATH="$(echo $filtered_path | sed 's/^://')"
+        PATH=$(echo "$filtered_path" | sed 's/^://')
+        export PATH
         break
       fi
       match=false
-      if echo $head | grep -i "^/cygdrive/" >/dev/null; then
+      if echo "$head" | grep -i "^/cygdrive/" >/dev/null; then
         for r in "/microsoft sql server/" \
           "/microsoft/web platform installer$" \
           "/microsoft sdks/typescript/" \
@@ -180,7 +178,7 @@ shrc_main() {
           "^/cygdrive/.*/ghc.*/bin$" \
           "^/cygdrive/.*/cabal/bin$" \
           "/mingw/bin$"; do
-          if echo $head | grep -i "$r" >/dev/null; then
+          if echo "$head" | grep -i "$r" >/dev/null; then
             match=true
             break
           fi
@@ -211,7 +209,7 @@ shrc_main() {
       export PS1='# '
       shrc_pathmunge /usr/sbin
       shrc_pathmunge /usr/local/sbin
-      if [ "$HOME" = "" -o "$HOME" = "/" ]; then
+      if [ "$HOME" = "" ] || [ "$HOME" = "/" ]; then
         rm -f $HISTFILE ~/.zcompdump
         mkdir -p /root
         export HOME=/root
@@ -223,12 +221,12 @@ shrc_main() {
     # OSX
     shrc_add_git_config core.precomposeunicode true
     defaults write com.apple.finder QuitMenuItem -bool yes
-    eval $(/usr/libexec/path_helper -s) || true
+    eval "$(/usr/libexec/path_helper -s)" || true
     export LESSCHARSET=utf-8
   elif [ "$(uname -r | grep -e '-co-' 2>/dev/null)" != "" ]; then
     # coLinux
     export DISPLAY=10.0.2.2:0
-  elif cat /proc/sys/kernel/osrelease | grep Microsoft >/dev/null 2>&1; then
+  elif grep Microsoft >/dev/null 2>&1 </proc/sys/kernel/osrelease; then
     # WSL
     export DISPLAY=:0
     export GHCRTS="-V0 $GHCRTS"
@@ -237,27 +235,17 @@ shrc_main() {
   export HOMEBREW_NO_ANALYTICS=1
   export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-  while [ "" = "" ]; do
-    ls --color=auto --show-control-chars -F >/dev/null 2>/dev/null
-    if [ ${?} -eq 0 ]; then
-      alias ls="ls --color=auto --show-control-chars -F"
-      break
-    fi
-    ls -G -F >/dev/null 2>/dev/null
-    if [ ${?} -eq 0 ]; then
-      alias ls="ls -G -F"
-      break
-    fi
-    ls -F >/dev/null 2>/dev/null
-    if [ ${?} -eq 0 ]; then
-      alias ls="ls -F"
-      break
-    fi
-    break
-  done
+  if ls --color=auto --show-control-chars -F >/dev/null 2>/dev/null; then
+    alias ls="ls --color=auto --show-control-chars -F"
+  elif ls -G -F >/dev/null 2>/dev/null; then
+    alias ls="ls -G -F"
+  elif ls -F >/dev/null 2>/dev/null; then
+    alias ls="ls -F"
+  fi
 
   if command_exists emacs; then
-    export EDITOR="$(which emacs)"
+    EDITOR="$(which emacs)"
+    export EDITOR
     #emacs() (
     #  $EDITOR $*
     #emacsclient --alternate-editor="$EDITOR" $*
@@ -266,9 +254,9 @@ shrc_main() {
     #)
   else
     for editor in nano vim vi; do
-      which ${editor} >/dev/null 2>/dev/null
-      if [ ${?} -eq 0 ]; then
-        export EDITOR=${editor}
+      if which ${editor} >/dev/null 2>/dev/null; then
+        EDITOR=${editor}
+        export EDITOR
         break
       fi
     done
@@ -299,44 +287,45 @@ shrc_main() {
         continue
       fi
       if [ -z "$JAVA_HOME" ]; then
-        export JAVA_HOME=$oracle_jdk_home
+        JAVA_HOME=$oracle_jdk_home
+        export JAVA_HOME
       fi
       if [ -z "$IDEA_JDK" ]; then
-        export IDEA_JDK=$oracle_jdk_home
+        IDEA_JDK=$oracle_jdk_home
+        export IDEA_JDK
       fi
       if [ -z "$STUDIO_JDK" ]; then
-        export STUDIO_JDK=$oracle_jdk_home
+        STUDIO_JDK=$oracle_jdk_home
+        export STUDIO_JDK
       fi
       if [ -z "$SMARTGIT_JDK" ]; then
-        export SMARTGIT_JDK=$oracle_jdk_home
+        SMARTGIT_JDK=$oracle_jdk_home
+        export SMARTGIT_JDK
       fi
       if [ -z "$SMARTGITHG_JAVA_HOME" ]; then
-        export SMARTGITHG_JAVA_HOME=$oracle_jdk_home
+        SMARTGITHG_JAVA_HOME=$oracle_jdk_home
+        export SMARTGITHG_JAVA_HOME
       fi
     done
   fi
 
   if [ -z "$JAVA_HOME" ] && [ -x /usr/libexec/java_home ]; then
-    export JAVA_HOME=$(/usr/libexec/java_home)
+    JAVA_HOME=$(/usr/libexec/java_home)
+    export JAVA_HOME
   fi
 
   for d in $HOME "" /opt /usr /usr/local /usr/local/go /usr/local/heroku; do
-    shrc_pathmunge $d/bin
-    shrc_pathmunge $d/sbin
+    shrc_pathmunge "$d/bin"
+    shrc_pathmunge "$d/sbin"
   done
 
   for d in .cabal .rbenv .rbenv/shims .phpenv .cargo .linuxbrew .pub-cache .poetry; do
-    shrc_pathmunge $HOME/$d/bin
-    shrc_pathmunge $HOME/$d/sbin
-  done
-
-  for d in .dotnet/tools; do
-    shrc_pathmunge $HOME/$d
+    shrc_pathmunge "$HOME/$d/bin"
+    shrc_pathmunge "$HOME/$d/sbin"
   done
 
   for d in .nodebrew/current $HOME/.local/node $HOME/.local/nodejs $HOME/.dotnet/tools; do
-    shrc_pathmunge $d/bin
-    if [ $? -eq 0 ]; then
+    if shrc_pathmunge "$d/bin"; then
       break
     fi
   done
@@ -350,7 +339,7 @@ shrc_main() {
     GitEye \
     Aptana_Studio_3 \
     depot_tools; do
-    shrc_pathmunge $HOME/.local/$d
+    shrc_pathmunge "$HOME/.local/$d"
   done
 
   for d in \
@@ -377,45 +366,56 @@ shrc_main() {
 
   if [ "$is_cygwin" != "yes" ]; then
     for xhome in $JAVA_HOME $ANT_HOME $M2_HOME $SBT_HOME $SCALA_HOME $GRADLE_HOME; do
-      shrc_pathmunge $xhome/bin
+      shrc_pathmunge "$xhome/bin"
     done
   fi
 
   if command_exists yarn; then
-    shrc_pathmunge $(yarn global bin)
+    shrc_pathmunge "$(yarn global bin)"
   fi
 
   for dir in "$HOME/.local" "$HOME/.local/macports/lib" "$HOME/.linuxbrew"; do
     if [ -d "$dir/include" ]; then
-      export C_INCLUDE_PATH=$(echo "$C_INCLUDE_PATH:$dir/include" | sed 's/^://')
-      export CPLUS_INCLUDE_PATH=$(echo "$CPLUS_INCLUDE_PATH:$dir/include" | sed 's/^://')
+      C_INCLUDE_PATH=$(echo "$C_INCLUDE_PATH:$dir/include" | sed 's/^://')
+      export C_INCLUDE_PATH
+      CPLUS_INCLUDE_PATH=$(echo "$CPLUS_INCLUDE_PATH:$dir/include" | sed 's/^://')
+      export CPLUS_INCLUDE_PATH
     fi
     if [ -d "$dir/lib" ]; then
-      export LIBRARY_PATH=$(echo "$LIBRARY_PATH:$dir/lib" | sed 's/^://')
-      export LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH:$dir/lib" | sed 's/^://')
+      LIBRARY_PATH=$(echo "$LIBRARY_PATH:$dir/lib" | sed 's/^://')
+      export LIBRARY_PATH
+      LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH:$dir/lib" | sed 's/^://')
+      export LD_LIBRARY_PATH
     fi
     if [ -d "$dir/lib64" ]; then
-      export LIBRARY_PATH=$(echo "$LIBRARY_PATH:$dir/lib64" | sed 's/^://')
-      export LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH:$dir/lib64" | sed 's/^://')
+      LIBRARY_PATH=$(echo "$LIBRARY_PATH:$dir/lib64" | sed 's/^://')
+      export LIBRARY_PATH
+      LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH:$dir/lib64" | sed 's/^://')
+      export LD_LIBRARY_PATH
     fi
     if [ -d "$dir/share/man" ]; then
-      export MANPATH=$(echo "$MANPATH:$dir/share/man" | sed 's/^://')
+      MANPATH=$(echo "$MANPATH:$dir/share/man" | sed 's/^://')
+      export MANPATH
     fi
     if [ -d "$dir/share/info" ]; then
-      export INFOPATH=$(echo "$INFOPATH:$dir/share/info" | sed 's/^://')
+      INFOPATH=$(echo "$INFOPATH:$dir/share/info" | sed 's/^://')
+      export INFOPATH
     fi
     if [ -d "$dir/share/pkgconfig" ]; then
-      export PKG_CONFIG_PATH=$(echo "$PKG_CONFIG_PATH:$dir/share/pkgconfig" | sed 's/^://')
+      PKG_CONFIG_PATH=$(echo "$PKG_CONFIG_PATH:$dir/share/pkgconfig" | sed 's/^://')
+      export PKG_CONFIG_PATH
     fi
     if [ -d "$dir/lib/pkgconfig" ]; then
-      export PKG_CONFIG_PATH=$(echo "$PKG_CONFIG_PATH:$dir/lib/pkgconfig" | sed 's/^://')
+      PKG_CONFIG_PATH=$(echo "$PKG_CONFIG_PATH:$dir/lib/pkgconfig" | sed 's/^://')
+      export PKG_CONFIG_PATH
     fi
   done
 
   if [ -z "$GOROOT" ]; then
     for goroot in "$HOME/.local/go" "/usr/local/opt/go/libexec"; do
       if [ -d "$goroot" ]; then
-        export GOROOT="$goroot"
+        GOROOT="$goroot"
+        export GOROOT
         break
       fi
     done
@@ -449,8 +449,9 @@ shrc_main() {
 
   if $interactive_mode; then
     ## Setup proper term information for emacs ansi-term mode
-    if command_exists '[['; then
-      [[ $TERM == eterm-color ]] && export TERM=xterm
+    if [ "$TERM" = "eterm-color" ]; then
+      TERM=xterm
+      export TERM
     fi
 
     if [ "$DISPLAY" = "" ]; then
@@ -468,15 +469,11 @@ shrc_main() {
       eval "$(phpenv init -)"
     fi
 
-    NVM_DIR="$HOME/.nvm"
     if [ -x "$HOME/.nodenv/bin/nodenv" ]; then
       shrc_pathmunge $HOME/.nodenv/bin
       eval "$(nodenv init -)"
     elif command_exists nodenv; then
       eval "$(nodenv init -)"
-    elif [ -d $NVM_DIR ]; then
-      export NVM_DIR
-      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     fi
   fi
 }
@@ -567,7 +564,7 @@ shrc_start() {
   return 0
 }
 
-shrc-update() (
+shrc_update() (
   base_url="https://raw.githubusercontent.com/saturday06/dotfiles/master"
 
   for downloader in \
@@ -653,7 +650,7 @@ shrc_compinit_u() {
     sep="--"
     loop=${#message}
     while [ "$loop" != "0" ]; do
-      loop=$(expr $loop - 1)
+      loop=$((loop - 1))
       sep="-$sep"
     done
     echo
@@ -810,34 +807,6 @@ shrc_setup_x() (
   #  if command_exists wmname; then
   #    wmname Sawfish
   #  fi
-
-  if ! command_exists xprop '[['; then
-    return
-  fi
-
-  # Fix X window manager name properties to work around java bugs with
-  # non-reparenting window managers. This is a different solution from
-  # the wmname utility provided by suckless, as it is NetWM compatible,
-  # while wmname sets the value of _NET_SUPPORTING_WM_CHECK to root win.
-  IRONIC_WM_NAME="LG3D"
-  NET_WIN=$(xprop -root _NET_SUPPORTING_WM_CHECK | shrc_nawk -F "# " '{print $2}')
-  if [[ "$NET_WIN" == 0x* ]]; then
-    # xprop cannot reliably set UTF8_STRING, so we replace as string.
-    # fortunately, jdk is OK with this, but wm-spec says use UTF8_STRING.
-    xprop -id "$NET_WIN" -remove _NET_WM_NAME
-    xprop -id "$NET_WIN" -f _NET_WM_NAME 8s -set _NET_WM_NAME "$IRONIC_WM_NAME"
-  else
-    # even if we're not net compatible, do java workaround
-    xprop -root -remove _NET_WM_NAME
-    xprop -root -f _NET_WM_NAME 8s -set _NET_WM_NAME "$IRONIC_WM_NAME"
-  fi
-
-  if [ -n "$IBUS_ENABLE_SYNC_MODE" ]; then
-    export IBUS_ENABLE_SYNC_MODE=1
-    if command_exists ibus-daemon; then
-      ibus-daemon -xrd
-    fi
-  fi
 )
 
 mozc_jp() (
@@ -851,7 +820,7 @@ update_mac() (
   defaults write -g KeyRepeat -int 4         # normal minimum is 2 (30 ms)
 )
 
-shrc-update-depot_tools() (
+shrc_update_depot_tools() (
   set -eux
   if command_exists gclient; then
     cd "$(dirname "$(command -v gclient)")"
@@ -913,7 +882,7 @@ Categories=Development;IDE;
 DESKTOP
 )
 
-shrc-update-desktop() (
+shrc_update_desktop() (
   mkdir -p ~/.local/bin ~/.local/share/applications
 
   shrc_setup_intellij_variant idea-IC idea 'IntelliJ IDEA Community'
@@ -921,7 +890,7 @@ shrc-update-desktop() (
   shrc_setup_intellij_variant pycharm-community pycharm PyCharm
 )
 
-shrc-update-xenv() (
+shrc_update_xenv() (
   set -eux
   for dir in ~/.rbenv ~/.rbenv/plugins/ruby-build ~/.nodenv ~/.nodenv/plugins/node-build; do
     if [ -d $dir/.git ]; then
@@ -932,7 +901,7 @@ shrc-update-xenv() (
   done
 )
 
-shrc-update-go() (
+shrc_update_go() (
   set -eux
   go get -u github.com/nsf/gocode
   go get -u github.com/rogpeppe/godef
@@ -940,7 +909,7 @@ shrc-update-go() (
   go get -u github.com/kisielk/errcheck
 )
 
-shrc-update-rust() (
+shrc_update_rust() (
   set -eux
 
   if ! command_exists rustup; then
@@ -965,7 +934,7 @@ shrc-update-rust() (
   fi
 )
 
-shrc-update-emacs() (
+shrc_update_emacs() (
   set -eux
   emacs --batch --eval "(progn (load \"~/.emacs\")(require 'package)(package-initialize)(package-refresh-contents))"
   for package in \
