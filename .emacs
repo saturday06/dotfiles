@@ -94,7 +94,7 @@
            (make-directory abs-dir t))
          (push abs-dir load-path))))
  '(
-   ".eshell"
+   ".eshl"
    "backup"
    "lisp"
    "lisp/auto-complete"

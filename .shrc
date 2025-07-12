@@ -148,17 +148,6 @@ shrc_main() {
     #   shrc_pathmunge "$p/nodejs"
     # done
     shrc_add_git_config core.filemode false
-    # この変数は未使用だが、将来の拡張のために保持
-    # shellcheck disable=SC2034
-    for var_name in VBOX_INSTALL_PATH \
-      PSModulePath \
-      GTK_BASEPATH \
-      VS120COMNTOOLS \
-      VS110COMNTOOLS \
-      VS90COMNTOOLS; do
-      :
-      #unset $var_name
-    done
     tmp_path=$PATH
     filtered_path=
     while true; do
