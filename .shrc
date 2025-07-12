@@ -1,3 +1,4 @@
+#!/bin/sh
 # -*- coding: us-ascii-unix; mode: shell-script -*-
 
 shrc_main() {
@@ -6,11 +7,17 @@ shrc_main() {
     HISTSIZE=50000
     SAVEHIST=50000
     LISTMAX=0
+    export HISTFILE
+    export HISTSIZE
+    export SAVEHIST
+    export LISTMAX
     #PROMPT="%n@%m%# "
     #PROMPT='%% '
     #PROMPT='%n%# '
     PROMPT='%# '
     RPROMPT='[%~]'
+    export PROMPT
+    export RPROMPT
 
     #path=($path(N^W)) # ignore world-writable
     #path=($path(N^IW)) # ignore group-writable
@@ -92,14 +99,12 @@ shrc_main() {
     fi
 
   elif [ -n "$BASH_VERSION" ]; then
+    # shellcheck disable=SC3044
+    shopt -s nocaseglob histappend
+
     export PS1='$ '
 
-    # Chapter 2. Setting Up Cygwin
-    # http://www.cygwin.com/cygwin-ug-net/setup-files.html
-    shopt -s nocaseglob
     # Ignore case while completing
-    #bind 'set completion-ignore-case on'
-    #bind `echo set completion-ignore-case on`
     set completion-ignore-case on
     # Make Bash 8bit clean
     set meta-flag on
@@ -108,9 +113,6 @@ shrc_main() {
 
     export HISTCONTROL=ignoredups:erasedups:ignorespace
     export HISTSIZE=10000
-
-    # append history entries..
-    shopt -s histappend
 
     # After each command, save and reload history
     export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
@@ -146,22 +148,24 @@ shrc_main() {
     #   shrc_pathmunge "$p/nodejs"
     # done
     shrc_add_git_config core.filemode false
-    for k in VBOX_INSTALL_PATH \
+    # この変数は未使用だが、将来の拡張のために保持
+    # shellcheck disable=SC2034
+    for var_name in VBOX_INSTALL_PATH \
       PSModulePath \
       GTK_BASEPATH \
       VS120COMNTOOLS \
       VS110COMNTOOLS \
       VS90COMNTOOLS; do
       :
-      #unset $k
+      #unset $var_name
     done
     tmp_path=$PATH
     filtered_path=
     while true; do
-      head=$(echo "$tmp_path" | sed 's/:.\+//')
-      tmp_path=$(echo "$tmp_path" | sed 's/^[^:]*\(.*\)/\1/' | sed 's/^://')
+      head=${tmp_path%%:*}
+      tmp_path=${tmp_path#*:}
       if [ "$head" = "" ]; then
-        PATH=$(echo "$filtered_path" | sed 's/^://')
+        PATH=${filtered_path#:}
         export PATH
         break
       fi
@@ -210,7 +214,7 @@ shrc_main() {
       shrc_pathmunge /usr/sbin
       shrc_pathmunge /usr/local/sbin
       if [ "$HOME" = "" ] || [ "$HOME" = "/" ]; then
-        rm -f $HISTFILE ~/.zcompdump
+        rm -f "$HISTFILE" ~/.zcompdump
         mkdir -p /root
         export HOME=/root
         #export HOME=`winpath2unix $USERPROFILE`
@@ -236,11 +240,11 @@ shrc_main() {
   export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
   if ls --color=auto --show-control-chars -F >/dev/null 2>/dev/null; then
-    alias ls="ls --color=auto --show-control-chars -F"
-  elif ls -G -F >/dev/null 2>/dev/null; then
-    alias ls="ls -G -F"
-  elif ls -F >/dev/null 2>/dev/null; then
-    alias ls="ls -F"
+    ls() { command ls --color=auto --show-control-chars -F "$@"; }
+  elif command ls -G -F >/dev/null 2>/dev/null; then
+    ls() { command ls -G -F "$@"; }
+  elif command ls -F >/dev/null 2>/dev/null; then
+    ls() { command ls -F "$@"; }
   fi
 
   if command_exists emacs; then
@@ -351,15 +355,15 @@ shrc_main() {
     sde-external \
     smartgithg \
     dart-sdk; do
-    shrc_pathmunge $HOME/.local/$d/bin
-    shrc_pathmunge $HOME/.local/$d/sbin
+    shrc_pathmunge "$HOME/.local/$d/bin"
+    shrc_pathmunge "$HOME/.local/$d/sbin"
   done
 
   for android_home in $HOME/.local/android-sdk-linux $HOME/.local/android-sdk-macosx $HOME/.local/android-sdk $HOME/Library/Android/sdk; do
-    if [ -d $android_home/tools ]; then
-      export ANDROID_HOME=$android_home
-      shrc_pathmunge $android_home/tools
-      shrc_pathmunge $android_home/platform-tools
+    if [ -d "$android_home/tools" ]; then
+      export ANDROID_HOME="$android_home"
+      shrc_pathmunge "$android_home/tools"
+      shrc_pathmunge "$android_home/platform-tools"
       break
     fi
   done
@@ -431,14 +435,14 @@ shrc_main() {
   fi
 
   if [ -z "$ANDROID_NDK_HOME" ]; then
-    android_ndk_home=$(find $HOME/.local -maxdepth 1 -type d -name 'android-ndk-*' | sort | head -n 1)
+    android_ndk_home=$(find "$HOME/.local" -maxdepth 1 -type d -name 'android-ndk-*' | sort | head -n 1)
     if [ -n "$android_ndk_home" ]; then
-      export ANDROID_NDK_HOME=$android_ndk_home
+      export ANDROID_NDK_HOME="$android_ndk_home"
     fi
   fi
 
-  shrc_pathmunge $GOROOT/bin
-  shrc_pathmunge $GOPATH/bin
+  shrc_pathmunge "$GOROOT/bin"
+  shrc_pathmunge "$GOPATH/bin"
 
   if [ -z "$SBT_OPTS" ]; then
     # export SBT_OPTS="-Xms256M -Xmx2048M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxMetaspaceSize=2048M"
@@ -459,7 +463,7 @@ shrc_main() {
     fi
 
     if [ -x "$HOME/.rbenv/bin/rbenv" ]; then
-      shrc_pathmunge $HOME/.rbenv/bin
+      shrc_pathmunge "$HOME/.rbenv/bin"
       eval "$(rbenv init -)"
     elif command_exists rbenv; then
       eval "$(rbenv init -)"
@@ -470,7 +474,7 @@ shrc_main() {
     fi
 
     if [ -x "$HOME/.nodenv/bin/nodenv" ]; then
-      shrc_pathmunge $HOME/.nodenv/bin
+      shrc_pathmunge "$HOME/.nodenv/bin"
       eval "$(nodenv init -)"
     elif command_exists nodenv; then
       eval "$(nodenv init -)"
@@ -570,7 +574,8 @@ shrc_update() (
   for downloader in \
     "wget --output-document=@file @url" \
     "curl -Lf --output @file @url"; do
-    if command -v "$(echo "$downloader" | sed 's/ .*$//')"; then
+    downloader_cmd=${downloader%% *}
+    if command -v "$downloader_cmd"; then
       break
     fi
     downloader=""
@@ -724,7 +729,7 @@ shrc_set_home() {
   user_tmp="$(id -nu 2>/dev/null)"
   home_tmp=/home/$user_tmp
   if [ "$user_tmp" != "" ] && [ -d "$home_tmp" ] && [ -x "$home_tmp" ]; then
-    export HOME=$home_tmp
+    export HOME="$home_tmp"
   fi
 }
 
