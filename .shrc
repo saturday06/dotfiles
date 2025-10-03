@@ -307,7 +307,7 @@ shrc_main() {
     export JAVA_HOME
   fi
 
-  for d in $HOME "" /opt /usr /usr/local /usr/local/go /usr/local/heroku; do
+  for d in $HOME "" /opt /usr /usr/local /usr/local/go /usr/local/heroku /opt/homebrew; do
     shrc_pathmunge "$d/bin"
     shrc_pathmunge "$d/sbin"
   done
