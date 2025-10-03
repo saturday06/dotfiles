@@ -299,10 +299,12 @@ shrc_main() {
     export JAVA_HOME
   fi
 
-  for d in $HOME "" /opt /usr /usr/local /usr/local/go /usr/local/heroku /opt/homebrew; do
+  for d in $HOME "" /opt /usr /usr/local /usr/local/go /usr/local/heroku; do
     shrc_pathmunge "$d/bin"
     shrc_pathmunge "$d/sbin"
   done
+
+  shrc_pathmunge /opt/homebrew after
 
   for d in .cabal .rbenv .rbenv/shims .phpenv .cargo .linuxbrew .pub-cache .poetry; do
     shrc_pathmunge "$HOME/$d/bin"
