@@ -228,14 +228,6 @@ shrc_main() {
   export HOMEBREW_NO_ANALYTICS=1
   export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-  if ls --color=auto --show-control-chars -F >/dev/null 2>/dev/null; then
-    ls() { command ls --color=auto --show-control-chars -F "$@"; }
-  elif command ls -G -F >/dev/null 2>/dev/null; then
-    ls() { command ls -G -F "$@"; }
-  elif command ls -F >/dev/null 2>/dev/null; then
-    ls() { command ls -F "$@"; }
-  fi
-
   if command_exists emacs; then
     EDITOR="$(which emacs)"
     export EDITOR
