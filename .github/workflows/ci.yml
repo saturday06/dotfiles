@@ -60,6 +60,6 @@ jobs:
       - name: Run a one-line script
         run: |
           shellcheck -s sh "$0"
-          for sh in bash dash ksh zsh sh; do
+          for sh in bash dash ksh sh; do
             shellcheck -s $sh .shrc
           done
