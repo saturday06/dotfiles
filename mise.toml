@@ -1,0 +1,13 @@
+[settings]
+enable_tools = [
+  'deno',
+  'node',
+  'ruby',
+  'terraform',
+]
+idiomatic_version_file_enable_tools = [
+  'deno',
+  'node',
+  'ruby',
+  'terraform',
+]
