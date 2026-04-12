@@ -303,7 +303,7 @@ shrc_main() {
     export JAVA_HOME
   fi
 
-  for d in "$HOME" "" /opt /usr /usr/local /usr/local/heroku /opt/homebrew; do
+  for d in "$HOME" "" /opt /usr /usr/local /opt/homebrew "$HOME/.dotnet/tools"; do
     shrc_pathmunge "$d/bin"
     shrc_pathmunge "$d/sbin"
   done
@@ -311,12 +311,6 @@ shrc_main() {
   for d in .cabal .cargo .linuxbrew; do
     shrc_pathmunge "$HOME/$d/bin"
     shrc_pathmunge "$HOME/$d/sbin"
-  done
-
-  for d in "$HOME/.dotnet/tools"; do
-    if shrc_pathmunge "$d/bin"; then
-      break
-    fi
   done
 
   if ! command_exists mise; then
