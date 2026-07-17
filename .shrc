@@ -308,6 +308,11 @@ shrc_main() {
     shrc_pathmunge "$d/sbin"
   done
 
+  for d in /opt/homebrew; do
+    shrc_pathmunge "$d/bin" before
+    shrc_pathmunge "$d/sbin" before
+  done
+
   for d in .cabal .cargo .linuxbrew; do
     shrc_pathmunge "$HOME/$d/bin"
     shrc_pathmunge "$HOME/$d/sbin"
@@ -730,30 +735,6 @@ shrc_set_home() {
   fi
 }
 
-shrc_pathmunge_after_rvm() {
-  if ! shrc_has_nawk; then
-    echo "'nawk' not found" 1>&2
-    echo "$PATH:$1"
-    return 1
-  fi
-
-  shrc_nawk 'BEGIN {
-    extra_path = ARGV[1]
-    extra_path_added = 0
-    n = split (ENVIRON["PATH"], paths, ":")
-    for (i = 1; i <= n; ++i) {
-      if (i != 1) {
-        printf(":")
-      }
-      if (!extra_path_added && !index(paths[i], "/.rvm/")) {
-        extra_path_added = 1
-        printf("%s:", extra_path)
-      }
-      printf(paths[i])
-    }
-  }' "$1"
-}
-
 shrc_pathmunge() {
   echo "PATHMUNGE $1 --> $PATH"
   if [ ! -d "$1" ]; then
@@ -764,15 +745,13 @@ shrc_pathmunge() {
     echo "--> already found"
     return
   fi
-  if [ "$2" = "after" ]; then
-    PATH="$PATH:$1"
-    export PATH
-    echo "--> $PATH"
+  if [ "$2" = "before" ]; then
+    PATH="${1}:${PATH}"
   else
-    PATH=$(shrc_pathmunge_after_rvm "$1")
-    export PATH
-    echo "--> $PATH"
+    PATH="${PATH}:${1}"
   fi
+  export PATH
+  echo "--> $PATH"
   if command_exists rehash; then
     rehash
   elif command_exists hash; then
