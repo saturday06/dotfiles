@@ -303,15 +303,13 @@ shrc_main() {
     export JAVA_HOME
   fi
 
-  for d in "$HOME" "" /opt /usr /usr/local /opt/homebrew "$HOME/.dotnet/tools"; do
+  for d in "$HOME" "" /opt /usr /usr/local "$HOME/.dotnet/tools"; do
     shrc_pathmunge "$d/bin"
     shrc_pathmunge "$d/sbin"
   done
 
-  for d in /opt/homebrew; do
-    shrc_pathmunge "$d/bin" before
-    shrc_pathmunge "$d/sbin" before
-  done
+  shrc_pathmunge /opt/homebrew/bin before
+  shrc_pathmunge /opt/homebrew/sbin before
 
   for d in .cabal .cargo .linuxbrew; do
     shrc_pathmunge "$HOME/$d/bin"
